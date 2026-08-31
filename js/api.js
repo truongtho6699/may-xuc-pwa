@@ -9,7 +9,7 @@
  */
 
 // ⚠️ SAU KHI DEPLOY WEB APP, DÁN URL VÀO ĐÂY (xem README.md mục "Bước 7")
-const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbzPAo7Xh06cecGDoPZvKf5rf25mcqwLx9wcTZtL-6gkjpKeg_nI50zyqq4NK0k0egGP/exec';
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbzK_nPWnvyJh9gxu4gQ1o1K6KxGaxmgyB0MrmDsT7d_SACMsiaEYjTFWXTD1bfHDRY2/exec';
 
 const Api = (function () {
 

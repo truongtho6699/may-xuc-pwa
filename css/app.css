@@ -389,3 +389,293 @@ body {
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================
+   PHASE 3-6: form nghiệp vụ, chip chọn, ảnh, danh sách, dashboard
+   ========================================================== */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 4px;
+}
+.page-header .back-btn {
+  border: none;
+  background: #fff;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  font-size: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+.page-header h2 {
+  font-size: 19px;
+  margin: 0;
+}
+.page-body { padding: 8px 16px 24px; }
+
+.machine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.select-field {
+  width: 100%;
+  min-height: 52px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 17px;
+  background: #fff;
+  margin-bottom: 4px;
+}
+
+.btn-qr {
+  width: 100%;
+  min-height: 48px;
+  border: 2px dashed var(--color-primary);
+  background: #f0fdfa;
+  color: var(--color-primary-dark);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.field textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
+}
+.field textarea:focus { outline: none; border-color: var(--color-primary); }
+.field .hint { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; }
+
+/* Chip chọn (loại lỗi, mức độ, định kỳ/phát sinh...) */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.chip {
+  border: 2px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.chip.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+.chip.severity-LOW.selected { background: var(--color-success); border-color: var(--color-success); }
+.chip.severity-MEDIUM.selected { background: var(--color-warning); border-color: var(--color-warning); }
+.chip.severity-HIGH.selected { background: var(--color-danger); border-color: var(--color-danger); }
+
+/* Ảnh chụp */
+.photo-slot-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.photo-slot {
+  border: 2px dashed var(--color-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+}
+.photo-slot .photo-thumb {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f1f3f4;
+  flex-shrink: 0;
+}
+.photo-slot .photo-placeholder {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  background: #f1f3f4;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.photo-slot .photo-info { flex: 1; }
+.photo-slot .photo-title { font-weight: 700; font-size: 15px; margin: 0 0 2px; }
+.photo-slot .photo-optional { font-size: 12px; color: var(--color-text-muted); }
+.photo-slot button {
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.photo-slot.filled button { background: var(--color-text-muted); }
+
+.image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.image-grid .grid-photo { position: relative; }
+.image-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.image-grid .remove-btn {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+}
+.image-grid .add-photo-btn {
+  aspect-ratio: 1;
+  border: 2px dashed var(--color-border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 26px;
+  color: var(--color-text-muted);
+}
+
+/* Danh sách (Nhật ký / Sự cố / Xác nhận dầu) */
+.list-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.list-card .list-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.list-card .list-card-title { font-weight: 700; font-size: 15px; margin: 0; }
+.list-card .list-card-subtitle { font-size: 13px; color: var(--color-text-muted); margin: 2px 0 0; }
+.list-card .list-card-time { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; }
+.list-card .list-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+.list-card .list-card-actions button {
+  flex: 1;
+  min-height: 42px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+}
+.btn-confirm { background: var(--color-success); color: #fff; }
+.btn-dispute { background: #fff; color: var(--color-warning); border: 2px solid var(--color-warning) !important; }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.badge-GREEN, .badge-COMPLETED, .badge-ACTIVE { background: #dcfce7; color: #166534; }
+.badge-ORANGE, .badge-WAITING_DRIVER_CONFIRM, .badge-ACKNOWLEDGED, .badge-REPAIRING, .badge-NEW { background: #ffedd5; color: #9a3412; }
+.badge-RED, .badge-DISPUTED, .badge-BROKEN, .badge-HIGH { background: #fee2e2; color: #991b1b; }
+.badge-GRAY, .badge-CANCELLED, .badge-IDLE { background: #e5e7eb; color: #374151; }
+.badge-MEDIUM { background: #fef9c3; color: #854d0e; }
+.badge-LOW { background: #dbeafe; color: #1e40af; }
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--color-text-muted);
+}
+.empty-state .emoji { font-size: 40px; margin-bottom: 10px; }
+
+.tab-group { display: flex; gap: 6px; padding: 12px 16px 4px; overflow-x: auto; }
+.tab-btn {
+  border: none;
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.tab-btn.active { background: var(--color-primary); color: #fff; }
+
+/* Dashboard */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 14px 16px 4px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.stat-card .stat-value { font-size: 20px; font-weight: 800; margin: 0; }
+.stat-card .stat-label { font-size: 11px; color: var(--color-text-muted); margin: 2px 0 0; }
+
+.dashboard-table { padding: 12px 16px 24px; }
+.machine-row {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.machine-row .m-left .m-name { font-weight: 700; font-size: 15px; }
+.machine-row .m-left .m-sub { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+.machine-row .m-right { text-align: right; }
+.machine-row .m-lph { font-size: 16px; font-weight: 800; }
+.status-dot-green { color: var(--color-success); }
+.status-dot-orange { color: var(--color-warning); }
+.status-dot-red { color: var(--color-danger); }
+.status-dot-gray { color: var(--color-text-muted); }
+
+/* QR scanner modal */
+.qr-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.qr-modal video { width: 100%; max-width: 420px; border-radius: 12px; }
+.qr-modal .qr-hint { color: #fff; margin-top: 16px; font-size: 14px; text-align: center; padding: 0 24px; }
+.qr-modal .qr-close {
+  margin-top: 20px;
+  border: none;
+  background: #fff;
+  color: var(--color-text);
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.disabled-notice {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin: 0 16px 16px;
+}
