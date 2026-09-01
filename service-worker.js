@@ -12,7 +12,7 @@
  * ------------------------------------------------------------
  */
 
-const CACHE_NAME = 'may-xuc-shell-v2';
+const CACHE_NAME = 'may-xuc-shell-v3';
 
 const SHELL_FILES = [
   './',
