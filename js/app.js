@@ -258,8 +258,7 @@
     account: renderAccount,
     'shift-start': renderShiftStart,
     'shift-end': renderShiftEnd,
-    'fuel-create': renderFuelCreate,
-    'fuel-confirm-list': renderFuelConfirmList,
+    'fuel-report': renderFuelReport,
     'issue-menu': renderIssueMenu,
     'issue-report': renderIssueReport,
     'grease-report': renderGreaseReport,
@@ -343,7 +342,7 @@
         0900000001 – Admin (toàn quyền)<br>
         0900000002 – Quản lý<br>
         0900000003 – Lái máy<br>
-        0900000004 – Cấp dầu
+        0900000004 – Lái máy 2
       </div>
     `;
     container.appendChild(wrap);
@@ -433,15 +432,13 @@
     container.innerHTML = '';
     var buttons = [];
 
-    if (user.ROLE === 'FUELER') {
-      buttons.push({ icon: '⛽', label: 'CẤP DẦU', route: 'fuel-create', primary: true });
-    } else {
-      buttons.push({ icon: '▶', label: 'BẮT ĐẦU CA', route: 'shift-start', primary: !hasActiveShift, disabled: hasActiveShift });
-      buttons.push({ icon: '⛽', label: 'ĐỔ DẦU', route: 'fuel-confirm-list', disabled: !hasActiveShift });
-      // "Bơm mỡ" được gộp vào bên trong luồng "Báo sự cố" theo yêu cầu điều chỉnh.
-      buttons.push({ icon: '🔧', label: 'BÁO SỰ CỐ', route: 'issue-menu', danger: true, disabled: !hasActiveShift });
-      buttons.push({ icon: '⏹', label: 'KẾT THÚC CA', route: 'shift-end', disabled: !hasActiveShift });
-    }
+    // Theo yêu cầu điều chỉnh: DRIVER và FUELER đã gộp thành 1 vai trò.
+    // Lái xe tự đề xuất và tự ghi nhận việc đổ dầu cho máy mình đang vận hành.
+    buttons.push({ icon: '▶', label: 'BẮT ĐẦU CA', route: 'shift-start', primary: !hasActiveShift, disabled: hasActiveShift });
+    buttons.push({ icon: '⛽', label: 'ĐỔ DẦU', route: 'fuel-report', disabled: !hasActiveShift });
+    // "Bơm mỡ" được gộp vào bên trong luồng "Báo sự cố" theo yêu cầu điều chỉnh.
+    buttons.push({ icon: '🔧', label: 'BÁO SỰ CỐ', route: 'issue-menu', danger: true, disabled: !hasActiveShift });
+    buttons.push({ icon: '⏹', label: 'KẾT THÚC CA', route: 'shift-end', disabled: !hasActiveShift });
 
     buttons.forEach(function (b) {
       var btn = document.createElement('button');
@@ -451,7 +448,7 @@
       container.appendChild(btn);
     });
 
-    if (!hasActiveShift && user.ROLE !== 'FUELER') {
+    if (!hasActiveShift) {
       var notice = document.createElement('p');
       notice.style.cssText = 'text-align:center;color:var(--color-text-muted);font-size:13px;margin-top:6px;';
       notice.textContent = 'Hãy bắt đầu ca làm việc để mở khoá các chức năng khác.';
@@ -526,7 +523,7 @@
 
   function renderAccount(container) {
     var user = Api.getCurrentUser();
-    var roleLabelMap = { ADMIN: 'Quản trị viên (toàn quyền)', MANAGER: 'Quản lý', DRIVER: 'Lái máy', FUELER: 'Người cấp dầu' };
+    var roleLabelMap = { ADMIN: 'Quản trị viên (toàn quyền)', MANAGER: 'Quản lý', DRIVER: 'Lái máy (tự đề xuất & ghi nhận đổ dầu)' };
 
     var wrap = document.createElement('div');
     wrap.className = 'screen';
@@ -678,20 +675,26 @@
   }
 
   // ============================================================
-  // MÀN HÌNH: CẤP DẦU (FUELER) - mục 8
+  // MÀN HÌNH: ĐỔ DẦU (TỰ ĐỀ XUẤT - TỰ GHI NHẬN) - mục 8 (đã điều chỉnh)
+  // DRIVER và FUELER đã gộp thành 1 vai trò: lái xe tự ghi nhận số lít dầu
+  // đã đổ cho máy mình đang vận hành, không cần người khác xác nhận chéo.
+  // Máy được lấy tự động theo ca đang hoạt động - không cần chọn/quét lại
+  // (mục 37: không bắt người dùng nhập lại thông tin đã có sẵn).
   // ============================================================
 
-  function renderFuelCreate(container) {
+  async function renderFuelReport(container) {
     var wrap = document.createElement('div');
     wrap.className = 'screen';
-    var body = backHeader(wrap, 'Cấp dầu', 'home');
+    var body = backHeader(wrap, 'Đổ dầu', 'home');
     container.appendChild(wrap);
 
-    var selectedMachine = null;
+    var shift = await resolveCurrentShift();
+    if (!shift) {
+      body.innerHTML = '<div class="empty-state"><div class="emoji">⚪</div>Bạn cần bắt đầu ca làm việc trước.</div>';
+      return;
+    }
 
-    var machinePickerWrap = document.createElement('div');
-    body.appendChild(machinePickerWrap);
-    renderMachinePicker(machinePickerWrap, function (machineId) { selectedMachine = machineId; });
+    body.innerHTML = `<div class="machine-badge">🚜 Máy: ${escapeHtml_(shift.MACHINE_ID)}</div>`;
 
     var form = document.createElement('div');
     form.innerHTML = `
@@ -704,18 +707,18 @@
         <input type="number" step="0.1" inputmode="decimal" id="fuel-hourmeter" placeholder="Ví dụ: 3591.5">
       </div>
       <div class="photo-slot-group" id="photo-group"></div>
-      <button class="btn-primary" id="submit-btn">XÁC NHẬN CẤP DẦU</button>
+      <button class="btn-primary" id="submit-btn">GHI NHẬN ĐỔ DẦU</button>
     `;
     body.appendChild(form);
 
     var photoGroup = form.querySelector('#photo-group');
     var slotPump = renderPhotoSlot(photoGroup, {
       id: 'pump', title: 'Ảnh đồng hồ bơm/cây dầu', optional: false,
-      watermark: function () { return { machineId: selectedMachine || '', dateTimeText: nowText_() }; }
+      watermark: function () { return { machineId: shift.MACHINE_ID, dateTimeText: nowText_(), userName: Api.getCurrentUser().FULL_NAME }; }
     });
     var slotHourMeter = renderPhotoSlot(photoGroup, {
       id: 'hourmeter', title: 'Ảnh đồng hồ giờ máy', optional: false,
-      watermark: function () { return { machineId: selectedMachine || '', dateTimeText: nowText_() }; }
+      watermark: function () { return { machineId: shift.MACHINE_ID, dateTimeText: nowText_(), userName: Api.getCurrentUser().FULL_NAME }; }
     });
     var slotReceipt = renderPhotoSlot(photoGroup, {
       id: 'receipt', title: 'Ảnh phiếu dầu', optional: true
@@ -725,7 +728,6 @@
       var qty = form.querySelector('#fuel-qty').value;
       var hourMeter = form.querySelector('#fuel-hourmeter').value;
 
-      if (!selectedMachine) { showToast('Vui lòng chọn máy.', 'error'); return; }
       if (!qty || Number(qty) <= 0) { showToast('Số lít phải lớn hơn 0.', 'error'); return; }
       if (!hourMeter || Number(hourMeter) < 0) { showToast('Vui lòng nhập giờ máy hợp lệ.', 'error'); return; }
       if (!slotPump.getBase64()) { showToast('Vui lòng chụp ảnh đồng hồ bơm.', 'error'); return; }
@@ -737,7 +739,6 @@
 
       try {
         var result = await submitTransaction('fuel', {
-          machineId: selectedMachine,
           quantity: Number(qty),
           hourMeter: Number(hourMeter),
           imagePump: slotPump.getBase64(),
@@ -746,101 +747,11 @@
           lat: gps ? gps.latitude : '',
           lng: gps ? gps.longitude : ''
         });
-        showToast(result.synced ? '✅ Đã ghi nhận cấp dầu.' : '🟠 Đã lưu tạm, sẽ đồng bộ khi có mạng.', result.synced ? 'success' : 'warning');
+        showToast(result.synced ? '✅ Đã ghi nhận đổ dầu.' : '🟠 Đã lưu tạm, sẽ đồng bộ khi có mạng.', result.synced ? 'success' : 'warning');
         navigate('home');
       } catch (err) {
-        showToast(err.message || 'Không thể ghi nhận cấp dầu.', 'error');
-        btn.disabled = false; btn.textContent = 'XÁC NHẬN CẤP DẦU';
-      }
-    });
-  }
-
-  // ============================================================
-  // MÀN HÌNH: LÁI XE XÁC NHẬN DẦU (mục 9)
-  // ============================================================
-
-  async function renderFuelConfirmList(container) {
-    var wrap = document.createElement('div');
-    wrap.className = 'screen';
-    var body = backHeader(wrap, 'Xác nhận dầu', 'home');
-    container.appendChild(wrap);
-    body.innerHTML = '<div class="loading-wrap"><div class="spinner"></div> Đang tải...</div>';
-
-    try {
-      var list = await Api.get('fuel/pending', {});
-      if (!list.length) {
-        body.innerHTML = '<div class="empty-state"><div class="emoji">✅</div>Không có giao dịch dầu nào cần xác nhận.</div>';
-        return;
-      }
-      body.innerHTML = '';
-      list.forEach(function (tx) { body.appendChild(buildFuelCard_(tx)); });
-    } catch (err) {
-      body.innerHTML = '<div class="form-error show">' + (err.message || 'Không tải được danh sách.') + '</div>';
-    }
-  }
-
-  function buildFuelCard_(tx) {
-    var card = document.createElement('div');
-    card.className = 'list-card';
-    card.innerHTML = `
-      <div class="list-card-top">
-        <div>
-          <p class="list-card-title">${escapeHtml_(tx.MACHINE_ID)} — ${tx.FUELER_QUANTITY} L</p>
-          <p class="list-card-subtitle">Người cấp: ${escapeHtml_(tx.FUELER_ID)}</p>
-        </div>
-        <span class="list-card-time">${fmtDateTime_(tx.TRANSACTION_TIME)}</span>
-      </div>
-      <div class="list-card-actions">
-        <button class="btn-confirm">✅ XÁC NHẬN</button>
-        <button class="btn-dispute">⚠ BÁO SAI LỆCH</button>
-      </div>
-    `;
-
-    card.querySelector('.btn-confirm').addEventListener('click', async function () {
-      if (!confirm('Xác nhận đã nhận ' + tx.FUELER_QUANTITY + ' lít dầu?')) return;
-      try {
-        await Api.post('fuel/confirm', { transactionId: tx.TRANSACTION_ID, confirm: true });
-        showToast('✅ Đã xác nhận nhận dầu.', 'success');
-        card.remove();
-      } catch (err) {
-        showToast(err.message || 'Không thể xác nhận.', 'error');
-      }
-    });
-
-    card.querySelector('.btn-dispute').addEventListener('click', function () {
-      openDisputeForm_(card, tx);
-    });
-
-    return card;
-  }
-
-  function openDisputeForm_(card, tx) {
-    var formHtml = document.createElement('div');
-    formHtml.style.marginTop = '10px';
-    formHtml.innerHTML = `
-      <div class="field">
-        <label>Số lít thực nhận</label>
-        <input type="number" step="0.1" inputmode="decimal" id="dispute-qty-${tx.TRANSACTION_ID}">
-      </div>
-      <div class="field">
-        <label>Ghi chú</label>
-        <textarea id="dispute-note-${tx.TRANSACTION_ID}" placeholder="Không bắt buộc"></textarea>
-      </div>
-      <button class="btn-primary" id="dispute-submit-${tx.TRANSACTION_ID}">GỬI BÁO SAI LỆCH</button>
-    `;
-    card.appendChild(formHtml);
-    card.querySelector('.list-card-actions').classList.add('hidden');
-
-    formHtml.querySelector('#dispute-submit-' + tx.TRANSACTION_ID).addEventListener('click', async function () {
-      var qty = formHtml.querySelector('#dispute-qty-' + tx.TRANSACTION_ID).value;
-      var note = formHtml.querySelector('#dispute-note-' + tx.TRANSACTION_ID).value;
-      if (!qty || Number(qty) <= 0) { showToast('Vui lòng nhập số lít thực nhận hợp lệ.', 'error'); return; }
-      try {
-        await Api.post('fuel/confirm', { transactionId: tx.TRANSACTION_ID, confirm: false, driverQuantity: Number(qty), note: note });
-        showToast('Đã gửi báo sai lệch, chờ quản lý đối chiếu.', 'warning');
-        card.remove();
-      } catch (err) {
-        showToast(err.message || 'Không thể gửi báo sai lệch.', 'error');
+        showToast(err.message || 'Không thể ghi nhận đổ dầu.', 'error');
+        btn.disabled = false; btn.textContent = 'GHI NHẬN ĐỔ DẦU';
       }
     });
   }
