@@ -60,9 +60,10 @@
   <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
 </div>
 
-<!-- Thư viện quét QR (mục 14). Nếu offline lần đầu tải trang, script này có thể
-     không tải được - app vẫn hoạt động bình thường nhờ luôn có lựa chọn chọn máy thủ công. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+<!-- Thư viện quét QR (mục 14) - NHÚNG CỤC BỘ (không phụ thuộc CDN ngoài) để
+     hoạt động ổn định kể cả mạng yếu/bị chặn CDN, và được Service Worker
+     cache để dùng được cả khi offline. -->
+<script src="js/jsQR.vendor.js"></script>
 
 <script src="js/api.js"></script>
 <script src="js/offline.js"></script>

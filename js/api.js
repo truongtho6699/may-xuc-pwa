@@ -9,7 +9,7 @@
  */
 
 // ⚠️ SAU KHI DEPLOY WEB APP, DÁN URL VÀO ĐÂY (xem README.md mục "Bước 7")
-const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbzK_nPWnvyJh9gxu4gQ1o1K6KxGaxmgyB0MrmDsT7d_SACMsiaEYjTFWXTD1bfHDRY2/exec';
+const API_BASE_URL = 'https://script.google.com/macros/s/DAN_WEB_APP_URL_VAO_DAY/exec';
 
 const Api = (function () {
 
@@ -85,8 +85,27 @@ const Api = (function () {
     return !!getToken();
   }
 
-  async function getMachines() {
-    return get('machines', {});
+  async function getMachines(forceRefresh) {
+    // Cache danh sách máy phía client (mục tối ưu tốc độ): danh sách máy
+    // hiếm khi đổi trong ngày, không cần gọi lại Apps Script (vốn có độ trễ
+    // "cold start" vài giây) mỗi lần mở màn hình chọn máy.
+    var CACHE_KEY = 'cache_machines';
+    var CACHE_TTL_MS = 5 * 60 * 1000; // 5 phút
+
+    if (!forceRefresh) {
+      try {
+        var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (cached && (Date.now() - cached.ts) < CACHE_TTL_MS) {
+          return cached.data;
+        }
+      } catch (e) { /* cache hỏng -> bỏ qua, gọi API bình thường bên dưới */ }
+    }
+
+    var data = await get('machines', {});
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) { /* localStorage đầy -> bỏ qua, không ảnh hưởng chức năng chính */ }
+    return data;
   }
 
   async function getMachineById(machineId) {

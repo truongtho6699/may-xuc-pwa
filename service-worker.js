@@ -12,7 +12,7 @@
  * ------------------------------------------------------------
  */
 
-const CACHE_NAME = 'may-xuc-shell-v2';
+const CACHE_NAME = 'may-xuc-shell-v4';
 
 const SHELL_FILES = [
   './',
@@ -25,6 +25,7 @@ const SHELL_FILES = [
   './js/camera.js',
   './js/gps.js',
   './js/qr.js',
+  './js/jsQR.vendor.js',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
