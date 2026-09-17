@@ -125,8 +125,19 @@ const Api = (function () {
     return json.data;
   }
 
+  function normalizePhone_(phone) {
+    var p = String(phone || '').trim().replace(/[\s.\-()]/g, '');
+    if (p.indexOf('+84') === 0) p = '0' + p.slice(3);
+    else if (p.indexOf('84') === 0 && p.length === 11) p = '0' + p.slice(2);
+    return p;
+  }
+
   async function login(phone, password) {
-    var data = await post('login', { phone: phone, password: password });
+    var normalizedPhone = normalizePhone_(phone);
+    if (!/^0\d{9}$/.test(normalizedPhone)) {
+      throw { code: 'INVALID_PHONE', message: 'Số điện thoại phải gồm 10 số và bắt đầu bằng 0.' };
+    }
+    var data = await post('login', { phone: normalizedPhone, password: password });
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
     return data.user;
