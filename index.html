@@ -6,65 +6,33 @@
 <title>Nhật Ký Vận Hành Máy</title>
 <meta name="description" content="Quản lý vận hành máy xúc: ca làm việc, dầu, mỡ, sự cố">
 <meta name="theme-color" content="#0f766e">
-
-<!-- PWA: cho phép Add to Home Screen -->
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VH Máy">
-
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-
 <div id="app">
-
-  <!-- Trạng thái mạng -->
   <div class="network-status" id="network-status">🟢 Online</div>
-
-  <!-- Banner đồng bộ giao dịch offline -->
   <div class="sync-banner" id="sync-banner">
     <span class="sync-text">Có 0 giao dịch chờ đồng bộ.</span>
     <button id="sync-now-btn">ĐỒNG BỘ NGAY</button>
   </div>
-
-  <!-- Khu vực nội dung màn hình hiện tại (được app.js render động) -->
   <div id="screen"></div>
-
-  <!-- Bottom Navigation: tối đa 4 mục (mục 29) -->
   <nav class="bottom-nav hidden" id="bottom-nav">
-    <button data-route="home">
-      <span class="nav-icon">🏠</span>
-      <span>Trang chủ</span>
-    </button>
-    <button data-route="history">
-      <span class="nav-icon">📋</span>
-      <span>Nhật ký</span>
-    </button>
-    <button data-route="issues-manage">
-      <span class="nav-icon">⚠</span>
-      <span>Sự cố</span>
-    </button>
-    <button data-route="account">
-      <span class="nav-icon">👤</span>
-      <span>Tài khoản</span>
-    </button>
+    <button data-route="home"><span class="nav-icon">🏠</span><span>Trang chủ</span></button>
+    <button data-route="history"><span class="nav-icon">📋</span><span>Nhật ký</span></button>
+    <button data-route="issues-manage"><span class="nav-icon">⚠</span><span>Sự cố</span></button>
+    <button data-route="account"><span class="nav-icon">👤</span><span>Tài khoản</span></button>
   </nav>
-
-  <!-- Toast thông báo (thay cho alert() mặc định - mục 32) -->
   <div class="toast-container" id="toast-container"></div>
-
-  <!-- Input ẩn dùng chung để mở camera chụp ảnh (mục 17, 28: ít nhập chữ, chủ yếu chụp ảnh) -->
   <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
 </div>
-
-<!-- Thư viện quét QR (mục 14) - NHÚNG CỤC BỘ (không phụ thuộc CDN ngoài) để
-     hoạt động ổn định kể cả mạng yếu/bị chặn CDN, và được Service Worker
-     cache để dùng được cả khi offline. -->
 <script src="js/jsQR.vendor.js"></script>
-
+<script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/offline.js"></script>
 <script src="js/gps.js"></script>
