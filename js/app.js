@@ -351,7 +351,7 @@
       </div>
       <button class="btn-primary" id="login-btn">ĐĂNG NHẬP</button>
       <div class="demo-hint">
-        <b>Tài khoản demo (mật khẩu: 123456)</b>
+        <b>Tài khoản demo (mật khẩu: 123455)</b>
         0900000001 – Admin (toàn quyền)<br>
         0900000002 – Quản lý<br>
         0900000003 – Lái máy<br>
