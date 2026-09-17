@@ -1,18 +1,13 @@
 /**
  * service-worker.js
  * ------------------------------------------------------------
- * Cache các file "shell" của ứng dụng (HTML/CSS/JS/icon) để:
- * - App mở được ngay cả khi mất mạng (mục 16, 39 của yêu cầu).
- * - Tải nhanh hơn ở lần mở sau.
- *
- * LƯU Ý: Service worker KHÔNG cache dữ liệu API (Google Sheets),
- * việc đồng bộ dữ liệu offline được xử lý riêng ở js/offline.js
- * bằng IndexedDB, vì dữ liệu giao dịch cần logic chống trùng
- * (CLIENT_TRANSACTION_ID) phức tạp hơn cache tĩnh thông thường.
+ * Cache các file giao diện để ứng dụng mở được khi mất mạng.
+ * Dữ liệu nghiệp vụ không cache tại Service Worker; hàng đợi
+ * giao dịch offline được xử lý riêng bằng IndexedDB.
  * ------------------------------------------------------------
  */
 
-const CACHE_NAME = 'may-xuc-shell-v4';
+const CACHE_NAME = 'may-xuc-shell-v5-supabase';
 
 const SHELL_FILES = [
   './',
@@ -30,46 +25,35 @@ const SHELL_FILES = [
   './icons/icon-512.png'
 ];
 
-// Cài đặt: cache toàn bộ file shell
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES)));
   self.skipWaiting();
 });
 
-// Kích hoạt: dọn cache cũ nếu có version mới
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      )
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
-// Chiến lược fetch:
-// - File shell (HTML/CSS/JS/icon): Cache First (ưu tiên cache, nhanh + hoạt động offline)
-// - Request API (gọi tới script.google.com): Network First, KHÔNG cache
-//   (dữ liệu nghiệp vụ phải luôn mới, offline queue xử lý riêng ở offline.js)
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Không can thiệp vào request gọi API backend
-  if (url.hostname.indexOf('script.google') !== -1 || url.hostname.indexOf('googleapis') !== -1) {
-    return; // để trình duyệt xử lý bình thường (network), offline.js sẽ tự queue nếu lỗi
+  // API Supabase luôn đi mạng trực tiếp; hàng đợi offline tự xử lý khi lỗi.
+  if (url.hostname.endsWith('.supabase.co') ||
+      url.hostname.indexOf('script.google') !== -1 ||
+      url.hostname.indexOf('googleapis') !== -1) {
+    return;
   }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).catch(() => {
-        // Nếu không có mạng và không có cache -> fallback về trang chủ (SPA)
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
+        if (event.request.mode === 'navigate') return caches.match('./index.html');
       });
     })
   );
