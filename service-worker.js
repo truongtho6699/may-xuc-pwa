@@ -4,21 +4,21 @@
  * Ảnh chụp/giao dịch offline được giữ qua IndexedDB và đồng bộ riêng.
  */
 
-const CACHE_NAME = 'may-xuc-shell-v6-drive';
+const CACHE_NAME = 'may-xuc-shell-v7-auth-fix';
 
 const SHELL_FILES = [
   './',
   './index.html',
-  './manifest.json',
-  './css/app.css',
-  './js/app.js',
-  './js/config.js',
-  './js/api.js',
-  './js/offline.js',
-  './js/camera.js',
-  './js/gps.js',
-  './js/qr.js',
-  './js/jsQR.vendor.js',
+  './manifest.json?v=20260917-2',
+  './css/app.css?v=20260917-2',
+  './js/app.js?v=20260917-2',
+  './js/config.js?v=20260917-2',
+  './js/api.js?v=20260917-2',
+  './js/offline.js?v=20260917-2',
+  './js/camera.js?v=20260917-2',
+  './js/gps.js?v=20260917-2',
+  './js/qr.js?v=20260917-2',
+  './js/jsQR.vendor.js?v=20260917-2',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
@@ -44,12 +44,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // HTML dùng network-first để nhanh nhận bản mới; các file tĩnh khác cache-first.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
+        return response;
+      }).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') return caches.match('./index.html');
-      });
-    })
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
