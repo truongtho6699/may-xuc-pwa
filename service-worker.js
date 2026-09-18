@@ -4,21 +4,23 @@
  * Ảnh chụp/giao dịch offline được giữ qua IndexedDB và đồng bộ riêng.
  */
 
-const CACHE_NAME = 'may-xuc-shell-v7-auth-fix';
+const CACHE_NAME = 'may-xuc-shell-v8-admin';
 
 const SHELL_FILES = [
   './',
   './index.html',
-  './manifest.json?v=20260917-2',
-  './css/app.css?v=20260917-2',
-  './js/app.js?v=20260917-2',
-  './js/config.js?v=20260917-2',
-  './js/api.js?v=20260917-2',
-  './js/offline.js?v=20260917-2',
-  './js/camera.js?v=20260917-2',
-  './js/gps.js?v=20260917-2',
-  './js/qr.js?v=20260917-2',
-  './js/jsQR.vendor.js?v=20260917-2',
+  './manifest.json?v=20260918-5',
+  './css/app.css?v=20260918-5',
+  './js/app.js?v=20260918-5',
+  './js/config.js?v=20260918-5',
+  './js/api.js?v=20260918-5',
+  './js/admin.js?v=20260918-5',
+  './js/admin-forms.js?v=20260918-5',
+  './js/offline.js?v=20260918-5',
+  './js/camera.js?v=20260918-5',
+  './js/gps.js?v=20260918-5',
+  './js/qr.js?v=20260918-5',
+  './js/jsQR.vendor.js?v=20260918-5',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
@@ -44,7 +46,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML dùng network-first để nhanh nhận bản mới; các file tĩnh khác cache-first.
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).then((response) => {
