@@ -1,0 +1,12 @@
+(function(){
+const U='https://dnqhikwqihfxvezqzqzn.supabase.co/functions/v1/nghi-son-admin-api';
+function t(){return localStorage.getItem('auth_token')||''}
+async function g(a,p){p=p||{};p.action=a;p.token=t();const r=await fetch(U+'?'+new URLSearchParams(p));const j=await r.json();if(!j.success)throw new Error(j.message||'Có lỗi xảy ra');return j.data}
+async function p(a,b){b=b||{};b.token=t();const r=await fetch(U+'?action='+encodeURIComponent(a),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});const j=await r.json();if(!j.success)throw new Error(j.message||'Có lỗi xảy ra');return j.data}
+if(window.Api&&Api.get){const old=Api.get.bind(Api);Api.get=async function(a,p1){if(a==='dashboard')return g('dashboard');return old(a,p1)}}
+function admin(){const u=Api.getCurrentUser&&Api.getCurrentUser();return u&&(u.ROLE==='ADMIN'||u.ROLE==='OWNER')}
+function panel(title,html){document.getElementById('admin-panel')?.remove();const d=document.createElement('div');d.id='admin-panel';d.style.cssText='position:fixed;inset:0;z-index:9999;background:#f5f7f9;overflow:auto;padding:16px';d.innerHTML='<div style="max-width:560px;margin:auto"><button id="adm-back" style="border:0;background:none;font-size:26px">←</button><h2>'+title+'</h2>'+html+'</div>';document.body.appendChild(d);d.querySelector('#adm-back').onclick=()=>d.remove();return d}
+window.NSAdmin={apiGet:g,apiPost:p,panel:panel};
+function inject(){if(!admin()||document.getElementById('admin-actions'))return;const host=document.querySelector('#dashboard-content');if(!host)return;const d=document.createElement('div');d.id='admin-actions';d.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px';d.innerHTML='<button id="adm-trip">🚚 TẠO CHUYẾN</button><button id="adm-car">➕ THÊM XE</button><button id="adm-users" style="grid-column:1/-1">👥 QUẢN LÝ NGƯỜI DÙNG</button>';d.querySelectorAll('button').forEach(b=>b.style.cssText+='padding:13px;border:0;border-radius:10px;background:#12998f;color:white;font-weight:700');host.parentNode.insertBefore(d,host);d.querySelector('#adm-trip').onclick=()=>window.NSAdmin.openTrips();d.querySelector('#adm-car').onclick=()=>window.NSAdmin.openVehicle();d.querySelector('#adm-users').onclick=()=>window.NSAdmin.openUsers()}
+const o=new MutationObserver(()=>setTimeout(inject,0));document.addEventListener('DOMContentLoaded',()=>{o.observe(document.body,{childList:true,subtree:true});setTimeout(inject,200)})
+})();
