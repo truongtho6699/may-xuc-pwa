@@ -1,2 +1,2 @@
-// Logo Nghi Sơn đúng theo file người dùng cung cấp.
-window.NGHI_SON_LOGO='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBg
+// Logo Nghi Sơn dùng thống nhất trong toàn bộ chương trình.
+window.NGHI_SON_LOGO='assets/logo-nghi-son.jpg?v=20260922-3';
