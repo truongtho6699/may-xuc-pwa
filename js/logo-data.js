@@ -1,3 +1,2 @@
-// Logo Nghi Sơn dùng thống nhất trong toàn bộ chương trình.
-// Dùng file ảnh tĩnh trong repo để tránh lỗi data URI/base64 trên trình duyệt/PWA.
-window.NGHI_SON_LOGO='icons/icon-512.png?v=20260922-2';
+// Logo Nghi Sơn đúng theo file người dùng cung cấp.
+window.NGHI_SON_LOGO='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBg
