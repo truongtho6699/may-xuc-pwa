@@ -29,6 +29,7 @@ wrap.insertBefore(info,wrap.firstChild);let anchor=info;
 const groups=[];if(['DRIVER','OPERATOR'].includes(u.role))groups.push(section('Quản lý phương tiện',[vehicleRow]));if(u.role==='ADMIN')groups.push(section('Quản lý hệ thống',[admUsers,admVehicles,admRoutes,admWork]));groups.push(section('Quản lý tài khoản',[changePass,logoutRow]));groups.filter(Boolean).forEach(g=>{anchor.after(g);anchor=g});
 const ver=document.createElement('div');ver.className='ns-account-version';ver.textContent='Nhật ký vận hành Nghi Sơn';anchor.after(ver);
 }
-function boot(){apply();const t=document.getElementById('screen')||document.body;new MutationObserver(()=>apply()).observe(t,{childList:true,subtree:true})}
+function loadOpsTheme(){if(document.getElementById('ns-ops-theme-loader'))return;const s=document.createElement('script');s.id='ns-ops-theme-loader';s.src='js/operations-theme-v21.js?v=20260923-1';document.head.appendChild(s)}
+function boot(){loadOpsTheme();apply();const t=document.getElementById('screen')||document.body;new MutationObserver(()=>apply()).observe(t,{childList:true,subtree:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
