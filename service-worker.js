@@ -1,5 +1,5 @@
 /** Cache bộ khung PWA; giao dịch offline lưu riêng trong IndexedDB. */
-const CACHE_NAME='may-xuc-shell-v32-account-layout';
+const CACHE_NAME='may-xuc-shell-v33-operations-cards';
 const SHELL_FILES=['./','./index.html','./manifest.json?v=20260922-6','./css/app.css?v=20260922-6','./js/config.js?v=20260922-6','./js/api.js?v=20260922-6','./js/ops-api-router.js?v=20260922-6','./js/offline.js?v=20260922-6','./js/gps.js?v=20260922-6','./js/runtime-fixes.js?v=20260922-6','./js/camera.js?v=20260922-6','./js/qr.js?v=20260922-6','./js/jsQR.vendor.js?v=20260922-6','./js/sw-register.js?v=20260922-6','./js/app-v17.js?v=20260922-6','./js/operations-v20.js?v=20260922-6','./js/ui-theme-v25.js?v=20260922-6','./js/account-theme-v26.js?v=20260922-6','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(SHELL_FILES)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim()});
