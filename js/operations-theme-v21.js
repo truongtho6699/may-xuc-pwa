@@ -16,7 +16,7 @@
     if(!document.getElementById('ns-camera-ui-hotfix')){
       const c=document.createElement('script');
       c.id='ns-camera-ui-hotfix';
-      c.src='js/camera-ui-hotfix.js?v=20260924-1';
+      c.src='js/camera-ui-hotfix.js?v=20260924-2';
       c.defer=true;
       document.head.appendChild(c);
     }
