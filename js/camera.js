@@ -10,62 +10,45 @@ const Camera = (function () {
 
   /**
    * Mở camera / thư viện ảnh.
-   * Tạo input tạm gắn trực tiếp vào body thay vì phụ thuộc input hidden cố định.
-   * Cách này ổn định hơn trên iOS Safari/PWA và Android WebView/Chrome.
+   * Luôn tạo input file mới trong đúng user gesture. Không tái sử dụng
+   * #camera-input có class hidden vì một số Safari/PWA sẽ không mở camera.
    */
-  function pickImage(inputElement) {
+  function pickImage() {
     return new Promise((resolve, reject) => {
-      let input = inputElement;
-      let temporary = false;
-
-      // Nếu input cũ không tồn tại hoặc đang ở trạng thái không phù hợp,
-      // tạo input mới ngay trong lần bấm của người dùng để giữ user gesture.
-      if (!input || !(input instanceof HTMLInputElement) || input.type !== 'file') {
-        input = document.createElement('input');
-        temporary = true;
-      }
-
+      const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.setAttribute('capture', 'environment');
-      input.value = '';
-
-      // Không dùng display:none vì một số bản Safari/PWA không mở camera ổn định.
-      // Đặt input ngoài màn hình nhưng vẫn thuộc DOM và có thể được kích hoạt.
+      input.setAttribute('aria-hidden', 'true');
+      input.tabIndex = -1;
       input.style.position = 'fixed';
-      input.style.left = '-9999px';
-      input.style.top = '0';
+      input.style.left = '0';
+      input.style.bottom = '0';
       input.style.width = '1px';
       input.style.height = '1px';
-      input.style.opacity = '0.01';
+      input.style.opacity = '0';
       input.style.pointerEvents = 'none';
       input.style.zIndex = '-1';
-
-      if (!input.isConnected) {
-        document.body.appendChild(input);
-        temporary = true;
-      }
+      document.body.appendChild(input);
 
       let settled = false;
       const cleanup = () => {
         input.onchange = null;
         input.oncancel = null;
         window.removeEventListener('focus', onFocusBack, true);
-        if (temporary && input.parentNode) input.parentNode.removeChild(input);
+        if (input.parentNode) input.parentNode.removeChild(input);
       };
       const done = (file) => {
         if (settled) return;
         settled = true;
         cleanup();
         if (file) resolve(file);
-        else reject({ code: 'NO_IMAGE', message: 'Chưa chọn ảnh.' });
+        else reject({ code: 'NO_IMAGE', message: 'Chưa chụp ảnh.' });
       };
       const onFocusBack = () => {
-        // Safari không phải lúc nào cũng phát sự kiện cancel.
-        // Chờ một nhịp để onchange có cơ hội chạy trước.
         setTimeout(() => {
           if (!settled && (!input.files || !input.files.length)) done(null);
-        }, 600);
+        }, 900);
       };
 
       input.onchange = () => done(input.files && input.files[0] ? input.files[0] : null);
@@ -73,7 +56,6 @@ const Camera = (function () {
       window.addEventListener('focus', onFocusBack, true);
 
       try {
-        // click() phải chạy đồng bộ trong handler bấm nút để iOS cho phép mở camera.
         input.click();
       } catch (e) {
         cleanup();
@@ -83,7 +65,7 @@ const Camera = (function () {
   }
 
   async function processImage(file, watermarkInfo) {
-    if (!file) throw { code: 'NO_IMAGE', message: 'Chưa chọn ảnh.' };
+    if (!file) throw { code: 'NO_IMAGE', message: 'Chưa chụp ảnh.' };
     if (file.type && !String(file.type).startsWith('image/')) {
       throw { code: 'INVALID_IMAGE', message: 'Tệp đã chọn không phải ảnh.' };
     }
@@ -128,7 +110,6 @@ const Camera = (function () {
     if (info.userName) lines.push(info.userName);
     if (info.gpsText) lines.push(info.gpsText);
     if (!lines.length) return;
-
     const fontSize = Math.max(14, Math.round(canvas.width * 0.032));
     const lineHeight = fontSize * 1.35;
     const padding = 10;
