@@ -14,7 +14,7 @@ async function gps(){
   const files=[
     ['ns-v1-api-router','js/v1-api-router.js?v=20260925-1'],
     ['ns-camera-ui-hotfix-direct','js/camera-ui-hotfix.js?v=20260925-1'],
-    ['ns-v1-runtime','js/v1-runtime.js?v=20260925-1']
+    ['ns-v1-runtime','js/v1-runtime.js?v=20260925-2']
   ];
   function load(i){
     if(i>=files.length)return;
