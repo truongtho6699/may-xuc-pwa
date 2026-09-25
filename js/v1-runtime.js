@@ -4,11 +4,11 @@
   const ACCOUNT_API='https://dnqhikwqihfxvezqzqzn.supabase.co/functions/v1/nghi-son-account-api';
   let syncRunning=false, scheduled=false;
 
-  function user(){try{return window.Api&&Api.getCurrentUser?Api.getCurrentUser():null}catch(e){return null}}
+  function user(){try{return typeof Api!=='undefined'&&Api.getCurrentUser?Api.getCurrentUser():null}catch(e){return null}}
   function token(){return localStorage.getItem('auth_token')||''}
   function toast(msg,type){const c=document.getElementById('toast-container');if(!c)return;const x=document.createElement('div');x.className='toast '+(type||'')+' show';x.textContent=msg;c.appendChild(x);setTimeout(()=>x.remove(),2800)}
   async function account(){const q=new URLSearchParams({action:'account',token:token()});const r=await fetch(ACCOUNT_API+'?'+q);const j=await r.json();if(!j.success)throw new Error(j.message||'Không đọc được phương tiện đang sử dụng.');return j.data}
-  async function gpsNow(){try{return window.Gps&&Gps.getCurrentPosition?await Gps.getCurrentPosition(7000):null}catch(e){return null}}
+  async function gpsNow(){try{return typeof Gps!=='undefined'&&Gps&&Gps.getCurrentPosition?await Gps.getCurrentPosition(7000):null}catch(e){return null}}
 
   async function submitTx(action,payload){
     payload=payload||{};
@@ -19,6 +19,7 @@
         if(code&&code!=='NETWORK_ERROR'&&code!=='PARSE_ERROR')throw e;
       }
     }
+    if(typeof OfflineQueue==='undefined')throw new Error('Không khởi tạo được bộ nhớ offline.');
     await OfflineQueue.enqueue(action,payload);
     await refreshSync();
     toast('Đã lưu trên máy, sẽ tự đồng bộ khi có mạng.','warning');
@@ -26,7 +27,7 @@
   }
 
   async function refreshSync(){
-    if(!window.OfflineQueue)return;
+    if(typeof OfflineQueue==='undefined')return;
     const b=document.getElementById('sync-banner');
     if(!b)return;
     const n=await OfflineQueue.countPending().catch(()=>0);
@@ -36,7 +37,7 @@
   }
 
   async function autoSync(showToast){
-    if(syncRunning||!navigator.onLine||!window.OfflineQueue||!window.Api)return;
+    if(syncRunning||!navigator.onLine||typeof OfflineQueue==='undefined'||typeof Api==='undefined')return;
     const n=await OfflineQueue.countPending().catch(()=>0);
     if(!n){await refreshSync();return}
     syncRunning=true;
