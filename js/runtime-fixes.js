@@ -2,21 +2,18 @@
 async function gps(){
   try {
     if (typeof Gps === 'undefined' || !Gps || typeof Gps.getCurrentPosition !== 'function') return null;
-    return await Gps.getCurrentPosition(7000);
+    return await Gps.getCurrentPosition(3500);
   } catch (e) {
     // GPS là dữ liệu bổ sung, không chặn nghiệp vụ vận hành.
     return null;
   }
 }
 
-// Nạp trực tiếp các lớp V1 để không phụ thuộc người dùng đã mở màn hình Tài khoản/Vận hành hay chưa.
+// V1 tối ưu: chỉ nạp các lớp đang dùng để giảm xung đột MutationObserver và request lặp.
 (function(){
   const files=[
     ['ns-v1-api-router','js/v1-api-router.js?v=20260925-2'],
-    ['ns-camera-ui-hotfix-direct','js/camera-ui-hotfix.js?v=20260925-3'],
-    ['ns-v1-runtime','js/v1-runtime.js?v=20260925-3'],
-    ['ns-v1-polish','js/v1-polish.js?v=20260925-1'],
-    ['ns-v1-polish-guard','js/v1-polish-guard.js?v=20260925-1'],
+    ['ns-v1-fast-home','js/v1-fast-home.js?v=20260925-1'],
     ['ns-v1-pa2-media','js/v1-pa2-media.js?v=20260925-1']
   ];
   function load(i){
