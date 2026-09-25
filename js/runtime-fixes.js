@@ -8,3 +8,19 @@ async function gps(){
     return null;
   }
 }
+
+// Nạp trực tiếp các lớp V1 để không phụ thuộc người dùng đã mở màn hình Tài khoản/Vận hành hay chưa.
+(function(){
+  const files=[
+    ['ns-v1-api-router','js/v1-api-router.js?v=20260925-1'],
+    ['ns-camera-ui-hotfix-direct','js/camera-ui-hotfix.js?v=20260925-1'],
+    ['ns-v1-runtime','js/v1-runtime.js?v=20260925-1']
+  ];
+  function load(i){
+    if(i>=files.length)return;
+    const [id,src]=files[i];
+    if(document.getElementById(id)){load(i+1);return;}
+    const s=document.createElement('script');s.id=id;s.src=src;s.async=false;s.onload=()=>load(i+1);s.onerror=()=>load(i+1);document.head.appendChild(s);
+  }
+  load(0);
+})();
