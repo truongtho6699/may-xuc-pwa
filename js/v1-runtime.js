@@ -115,6 +115,13 @@
     }
   }
 
+  function adminV1Ui(){
+    if(user()?.ROLE!=='ADMIN')return;
+    ['adm-trips','adm-routes'].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display='none'});
+    const accountActive=document.querySelector('#bottom-nav button[data-route="account"].active');
+    if(accountActive){document.querySelectorAll('#screen button').forEach(b=>{const t=(b.textContent||'').trim();if(/Chuyến xe vận tải|^Tuyến$/i.test(t))b.style.display='none'})}
+  }
+
   function filterGuards(){
     if(document.documentElement.dataset.v1FilterReady)return;
     document.documentElement.dataset.v1FilterReady='1';
@@ -130,7 +137,7 @@
     },true);
   }
 
-  function apply(){driverUi();operatorUi();filterGuards();refreshSync();}
+  function apply(){driverUi();operatorUi();adminV1Ui();filterGuards();refreshSync();}
   function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
   function boot(){apply();const root=document.getElementById('screen');if(root)new MutationObserver(m=>{if(m.some(x=>x.addedNodes&&x.addedNodes.length))schedule()}).observe(root,{childList:true,subtree:true});window.addEventListener('online',()=>autoSync(true));window.addEventListener('offline',refreshSync);setTimeout(()=>autoSync(false),1200)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
