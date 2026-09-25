@@ -2,14 +2,14 @@
 (function(){
   'use strict';
   const V1_API='https://dnqhikwqihfxvezqzqzn.supabase.co/functions/v1/nghi-son-v1-api';
-  if(!window.Api||typeof Api.post!=='function'||Api.__v1RouterReady)return;
+  if(typeof Api==='undefined'||typeof Api.post!=='function'||Api.__v1RouterReady)return;
   Api.__v1RouterReady=true;
   const originalPost=Api.post.bind(Api);
 
   async function tryGps(body){
     if(body&&body.lat!=null&&body.lng!=null)return body;
     try{
-      if(window.Gps&&typeof Gps.getCurrentPosition==='function'&&navigator.onLine){
+      if(typeof Gps!=='undefined'&&Gps&&typeof Gps.getCurrentPosition==='function'&&navigator.onLine){
         const g=await Gps.getCurrentPosition(5000);
         if(g){body.lat=g.latitude;body.lng=g.longitude;body.gpsStatus='OK';}
       }
