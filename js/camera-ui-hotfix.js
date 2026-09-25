@@ -14,15 +14,15 @@
     if(!c)return;
     const x=document.createElement('div');x.className='toast '+(type||'')+' show';x.textContent=msg;c.appendChild(x);setTimeout(()=>x.remove(),2800);
   }
-  function userName(){try{const u=window.Api&&Api.getCurrentUser?Api.getCurrentUser():null;return u?.FULL_NAME||u?.full_name||u?.name||''}catch(e){return ''}}
-  async function gpsText(){try{if(!window.Gps||!Gps.getCurrentPosition)return 'Không có GPS';const g=await Gps.getCurrentPosition(7000);return `${Number(g.latitude).toFixed(5)}, ${Number(g.longitude).toFixed(5)}`}catch(e){return 'Không có GPS'}}
+  function userName(){try{const u=typeof Api!=='undefined'&&Api.getCurrentUser?Api.getCurrentUser():null;return u?.FULL_NAME||u?.full_name||u?.name||''}catch(e){return ''}}
+  async function gpsText(){try{if(typeof Gps==='undefined'||!Gps||!Gps.getCurrentPosition)return 'Không có GPS';const g=await Gps.getCurrentPosition(7000);return `${Number(g.latitude).toFixed(5)}, ${Number(g.longitude).toFixed(5)}`}catch(e){return 'Không có GPS'}}
   function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||'').split(',')[1]||'');r.onerror=()=>reject(new Error('Không đọc được ảnh.'));r.readAsDataURL(file)})}
 
   async function processFile(kind,file,label,stateEl,captionEl){
     if(!file)return;
     try{
       if(stateEl)stateEl.textContent='Đang xử lý ảnh...';
-      const base64=window.Camera&&Camera.processImage?await Camera.processImage(file,{machineId:label||'Nghi Sơn',dateTimeText:new Date().toLocaleString('vi-VN'),userName:userName(),gpsText:await gpsText()}):await fileToBase64(file);
+      const base64=typeof Camera!=='undefined'&&Camera&&Camera.processImage?await Camera.processImage(file,{machineId:label||'Nghi Sơn',dateTimeText:new Date().toLocaleString('vi-VN'),userName:userName(),gpsText:await gpsText()}):await fileToBase64(file);
       store[kind]=base64;
       if(stateEl){stateEl.textContent='Đã chụp 1 ảnh';stateEl.style.color='#087173';stateEl.style.fontWeight='700'}
       if(captionEl)captionEl.textContent='Chụp lại ảnh';
@@ -47,8 +47,8 @@
     input.addEventListener('change',()=>{const file=input.files&&input.files[0];const assetText=document.querySelector('.v17-row span:last-child')?.textContent?.trim()||'Nghi Sơn';processFile(kind,file,assetText,state,caption)});
   }
   function injectPhoto(action,payload){if(!payload||typeof payload!=='object')return payload;if(action==='fuel'&&store.fuel&&!payload.imageReceipt)payload.imageReceipt=store.fuel;if(action==='issue'&&store.issue&&(!Array.isArray(payload.images)||!payload.images.length))payload.images=[store.issue];return payload}
-  function patchApi(){if(apiPatched||!window.Api||typeof Api.post!=='function')return;apiPatched=true;const original=Api.post.bind(Api);Api.post=async function(action,body){body=injectPhoto(action,body||{});const result=await original(action,body);if(action==='fuel')store.fuel=null;if(action==='issue')store.issue=null;return result}}
-  function patchQueue(){if(queuePatched||!window.OfflineQueue||typeof OfflineQueue.enqueue!=='function')return;queuePatched=true;const original=OfflineQueue.enqueue.bind(OfflineQueue);OfflineQueue.enqueue=async function(action,payload){payload=injectPhoto(action,payload||{});const result=await original(action,payload);if(action==='fuel')store.fuel=null;if(action==='issue')store.issue=null;return result}}
+  function patchApi(){if(apiPatched||typeof Api==='undefined'||typeof Api.post!=='function')return;apiPatched=true;const original=Api.post.bind(Api);Api.post=async function(action,body){body=injectPhoto(action,body||{});const result=await original(action,body);if(action==='fuel')store.fuel=null;if(action==='issue')store.issue=null;return result}}
+  function patchQueue(){if(queuePatched||typeof OfflineQueue==='undefined'||typeof OfflineQueue.enqueue!=='function')return;queuePatched=true;const original=OfflineQueue.enqueue.bind(OfflineQueue);OfflineQueue.enqueue=async function(action,payload){payload=injectPhoto(action,payload||{});const result=await original(action,payload);if(action==='fuel')store.fuel=null;if(action==='issue')store.issue=null;return result}}
   function apply(){ensureStyle();patchApi();patchQueue();enhance('fuel','fuel-photo','fuel-photo-state');enhance('issue','issue-photo','issue-photo-state')}
   let scheduled=false;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
   apply();const root=document.getElementById('screen');if(root)new MutationObserver(m=>{if(m.some(x=>x.addedNodes&&x.addedNodes.length))schedule()}).observe(root,{childList:true,subtree:true});
