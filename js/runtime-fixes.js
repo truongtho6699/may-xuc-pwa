@@ -14,6 +14,7 @@ async function gps(){
   const files=[
     ['ns-v1-api-router','js/v1-api-router.js?v=20260925-2'],
     ['ns-v1-fast-home','js/v1-fast-home.js?v=20260925-1'],
+    ['ns-route-select-fix','js/route-select-fix.js?v=20260926-1'],
     ['ns-home-kpi-header','js/home-kpi-header.js?v=20260926-1'],
     ['ns-v1-pa2-media','js/v1-pa2-media.js?v=20260925-1'],
     ['ns-standalone-safearea','js/standalone-safearea.js?v=20260926-1']
