@@ -1,0 +1,21 @@
+// Cho phép ghi nhận liên tiếp nhiều chuyến/ca khi offline mà không cần tải lại màn hình.
+(function(){
+'use strict';
+if(window.__NS_OFFLINE_MULTI_CYCLE)return;window.__NS_OFFLINE_MULTI_CYCLE=true;
+let recovering=false;
+function user(){try{return typeof Api!=='undefined'&&Api?.getCurrentUser?Api.getCurrentUser():null}catch(e){return null}}
+function key(n){return 'ns_v1_'+n+'_'+(user()?.PROFILE_ID||'user')}
+function getj(k,d={}){try{return JSON.parse(localStorage.getItem(k)||'null')||d}catch(e){return d}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(m){const c=document.getElementById('toast-container');if(!c)return;const x=document.createElement('div');x.className='toast success show';x.textContent=m;c.appendChild(x);setTimeout(()=>x.remove(),1800)}
+function assetLabel(){const a=getj(key('account'),{})?.selectedAsset;return a?(a.plate_number||a.name||a.code||'Đã chọn'):'Chưa chọn phương tiện'}
+function routes(){return getj(key('home'),{})?.routes||[]}
+function works(){return getj(key('home'),{})?.workTypes||[]}
+function routeOptions(sel){const items=routes();return '<option value="">-- Chọn tuyến --</option>'+items.map(x=>{const id=x.id||x.ROUTE_ID||'';const txt=(x.origin||x.ORIGIN||'')+' → '+(x.destination||x.DESTINATION||'');return `<option value="${esc(id)}" ${String(id)===String(sel)?'selected':''}>${esc(txt)}</option>`}).join('')}
+function workOptions(sel){const items=works();return '<option value="">-- Chọn công việc --</option>'+items.map(x=>{const id=x.id||x.WORK_TYPE_ID||'';const txt=x.name||x.WORK_TYPE_NAME||x.code||'';return `<option value="${esc(id)}" ${String(id)===String(sel)?'selected':''}>${esc(txt)}</option>`}).join('')}
+function wrap(){return document.querySelector('#screen .v17-wrap')}
+function driverReady(){const w=wrap();if(!w)return;const rid=localStorage.getItem(key('route'))||'';w.innerHTML=`<div class="v17-card"><div class="v17-card-title">CHUYẾN MỚI · OFFLINE</div><div class="ns-home-asset"><span>Phương tiện đang sử dụng</span><b>${esc(assetLabel())}</b></div><div class="v17-field"><label>Tuyến</label><select id="route-select">${routeOptions(rid)}</select></div></div><div class="v17-actions"><button id="start-trip" class="v17-action start"><span>▶</span><b>BẮT ĐẦU CHUYẾN</b></button><button id="finish-trip" class="v17-action stop" style="display:none"><span>■</span><b>KẾT THÚC CHUYẾN</b></button></div>`;const s=document.getElementById('route-select');if(s)s.onchange=()=>localStorage.setItem(key('route'),s.value);toast('Sẵn sàng ghi nhận chuyến tiếp theo.');}
+function operatorReady(){const w=wrap();if(!w)return;const wid=localStorage.getItem(key('work'))||'';w.innerHTML=`<div class="v17-card"><div class="v17-card-title">CA MỚI · OFFLINE</div><div class="ns-home-asset"><span>Phương tiện đang sử dụng</span><b>${esc(assetLabel())}</b></div><div class="v17-field"><label>Công việc</label><select id="work-select">${workOptions(wid)}</select></div><div class="v17-field"><label>Giờ máy đầu *</label><input id="start-meter" type="number" inputmode="decimal" step="0.1"></div></div><div class="v17-actions"><button id="start-shift" class="v17-action start"><span>▶</span><b>BẮT ĐẦU CA</b></button><button id="finish-shift" class="v17-action stop" style="display:none"><span>■</span><b>KẾT THÚC</b></button></div>`;const s=document.getElementById('work-select');if(s)s.onchange=()=>localStorage.setItem(key('work'),s.value);toast('Sẵn sàng ghi nhận ca tiếp theo.');}
+function waitAndRecover(kind){if(recovering||navigator.onLine)return;recovering=true;let n=0;const timer=setInterval(()=>{n++;const u=user();const local=kind==='trip'?getj(key('local_trip'),null):getj(key('local_shift'),null);const btn=document.getElementById(kind==='trip'?'finish-trip':'finish-shift');const done=!local?.active && (!!btn?.disabled || /ĐÃ GHI NHẬN/i.test(btn?.textContent||''));if(done){clearInterval(timer);setTimeout(()=>{if(!navigator.onLine){if(u?.ROLE==='DRIVER')driverReady();else if(u?.ROLE==='OPERATOR')operatorReady()}recovering=false},80)}else if(n>=30){clearInterval(timer);recovering=false}},80)}
+document.addEventListener('click',e=>{if(navigator.onLine)return;const b=e.target.closest?.('#finish-trip,#finish-shift');if(!b)return;waitAndRecover(b.id==='finish-trip'?'trip':'shift')},false);
+})();
