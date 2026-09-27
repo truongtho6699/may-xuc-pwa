@@ -19,7 +19,8 @@ async function gps(){
     ['ns-v1-pa2-media','js/v1-pa2-media.js?v=20260925-1'],
     ['ns-standalone-safearea','js/standalone-safearea.js?v=20260926-1'],
     ['ns-offline-cycle-v2','js/offline-cycle-v2.js?v=20260927-1'],
-    ['ns-sync-footer-event-colors','js/sync-footer-event-colors.js?v=20260927-1']
+    ['ns-sync-footer-event-colors','js/sync-footer-event-colors.js?v=20260927-1'],
+    ['ns-event-card-layout-v2','js/event-card-layout-v2.js?v=20260927-1']
   ];
   function load(i){
     if(i>=files.length)return;
