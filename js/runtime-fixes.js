@@ -17,7 +17,8 @@ async function gps(){
     ['ns-route-select-fix','js/route-select-fix.js?v=20260926-1'],
     ['ns-home-kpi-header','js/home-kpi-header.js?v=20260926-1'],
     ['ns-v1-pa2-media','js/v1-pa2-media.js?v=20260925-1'],
-    ['ns-standalone-safearea','js/standalone-safearea.js?v=20260926-1']
+    ['ns-standalone-safearea','js/standalone-safearea.js?v=20260926-1'],
+    ['ns-offline-multi-cycle','js/offline-multi-cycle-fix.js?v=20260927-1']
   ];
   function load(i){
     if(i>=files.length)return;
