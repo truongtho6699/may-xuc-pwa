@@ -22,7 +22,8 @@ async function gps(){
     ['ns-sync-footer-event-colors','js/sync-footer-event-colors.js?v=20260927-1'],
     ['ns-event-card-layout-v2','js/event-card-layout-v2.js?v=20260927-1'],
     ['ns-ui-consistency-v3','js/ui-consistency-v3.js?v=20260928-1'],
-    ['ns-ui-consistency-v4','js/ui-consistency-v4.js?v=20260928-1']
+    ['ns-ui-consistency-v4','js/ui-consistency-v4.js?v=20260928-1'],
+    ['ns-ui-consistency-v5','js/ui-consistency-v5.js?v=20260928-1']
   ];
   function load(i){
     if(i>=files.length)return;
