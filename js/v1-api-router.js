@@ -6,14 +6,20 @@
   Api.__v1RouterReady=true;
   const originalPost=Api.post.bind(Api);
 
-  async function tryGps(body){
-    if(body&&body.lat!=null&&body.lng!=null)return body;
+  async function tryGps(body,action){
+    body=body||{};
+    if(body.lat!=null&&body.lng!=null)return body;
     try{
-      if(typeof Gps!=='undefined'&&Gps&&typeof Gps.getCurrentPosition==='function'&&navigator.onLine){
-        const g=await Gps.getCurrentPosition(5000);
-        if(g){body.lat=g.latitude;body.lng=g.longitude;body.gpsStatus='OK';}
+      if(typeof Gps!=='undefined'&&Gps){
+        const maxAge=['fuel','issue'].includes(action)?5*60*1000:10*60*1000;
+        const g=typeof Gps.getBestPosition==='function'?await Gps.getBestPosition(3500,maxAge):await Gps.getCurrentPosition(3500);
+        if(g){
+          body.lat=g.latitude;body.lng=g.longitude;body.accuracy=g.accuracy;
+          body.gpsStatus=g.gpsStatus||'OK';body.gpsSource=g.source||'CURRENT';
+          body.gpsAgeSeconds=g.ageSeconds||0;body.gpsCapturedAt=g.capturedAt||new Date().toISOString();
+        }
       }
-    }catch(e){ if(body)body.gpsStatus=body.gpsStatus||'MISSING'; }
+    }catch(e){body.gpsStatus=body.gpsStatus||'MISSING';body.gpsSource=body.gpsSource||'MISSING';}
     return body;
   }
 
@@ -35,10 +41,11 @@
   Api.post=async function(action,body){
     body=body||{};
     if(['fuel','issue'].includes(action)){
-      body=await tryGps(body);
+      body=await tryGps(body,action);
       return originalPost(action,body);
     }
     if(['trip/start','trip/complete','shift/start','shift/end'].includes(action)){
+      if(body.lat==null||body.lng==null)body=await tryGps(body,action);
       return callV1(action,body);
     }
     return originalPost(action,body);
