@@ -25,7 +25,8 @@ async function gps(){
     ['ns-event-card-layout-v2','js/event-card-layout-v2.js?v=20260927-1'],
     ['ns-ui-consistency-v3','js/ui-consistency-v3.js?v=20260928-1'],
     ['ns-ui-consistency-v4','js/ui-consistency-v4.js?v=20260928-1'],
-    ['ns-ui-consistency-v5','js/ui-consistency-v5.js?v=20260928-1']
+    ['ns-ui-consistency-v5','js/ui-consistency-v5.js?v=20260928-1'],
+    ['ns-history-detail-v1','js/history-detail-v1.js?v=20260930-1']
   ];
   function load(i){
     if(i>=files.length)return;
