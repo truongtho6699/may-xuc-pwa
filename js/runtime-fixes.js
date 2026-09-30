@@ -28,6 +28,7 @@ async function gps(){
     ['ns-ui-consistency-v5','js/ui-consistency-v5.js?v=20260928-1'],
     ['ns-history-detail-v1','js/history-detail-v1.js?v=20260930-1'],
     ['ns-detail-action-v2','js/detail-action-v2.js?v=20260930-2'],
+    ['ns-history-ui-v2','js/history-ui-v2.js?v=20260930-1'],
     ['ns-offline-nav-lock-v1','js/offline-nav-lock-v1.js?v=20260930-1']
   ];
   function load(i){
